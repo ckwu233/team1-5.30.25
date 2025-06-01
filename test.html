@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MoodBot 🤖</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff8dc;
+      padding: 20px;
+      margin: 0;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    .chatbox {
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      padding: 15px;
+      width: 400px;
+      max-height: 500px;
+      overflow-y: auto;
+      background: #fff;
+      margin: 0 auto;
+    }
+
+    .bot-msg, .user-msg {
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 5px;
+      width: fit-content;
+      max-width: 80%;
+    }
+
+    .bot-msg {
+      background-color: #e0c3fc;
+    }
+
+    .user-msg {
+      background-color: #c3fcb5;
+      align-self: flex-end;
+      text-align: right;
+      margin-left: auto;
+    }
+
+    .mood-btn {
+      padding: 8px 12px;
+      margin: 5px;
+      background-color: #add8e6;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #mood-buttons {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    #follow-up {
+      display: none;
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    input[type="text"] {
+      padding: 8px;
+      width: 60%;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button.send-btn {
+      padding: 8px 12px;
+      margin-left: 5px;
+      background-color: #90ee90;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #team-credit {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      color: grey;
+      font-size: 14px;
+      line-height: 1.4;
+      background-color: transparent;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+<h2>🤖 MoodBot – Let’s Chat!</h2>
+
+<div class="chatbox" id="chatbox">
+  <div class="bot-msg">Hi! How are you feeling today? Choose a mood below 👇</div>
+</div>
+
+<div id="mood-buttons">
+  <button class="mood-btn" onclick="startConversation('happy')">Happy</button>
+  <button class="mood-btn" onclick="startConversation('sad')">Sad</button>
+  <button class="mood-btn" onclick="startConversation('bored')">Bored</button>
+  <button class="mood-btn" onclick="startConversation('anxious')">Anxious</button>
+  <button class="mood-btn" onclick="startConversation('tired')">Tired</button>
+  <button class="mood-btn" onclick="startConversation('excited')">Excited</button>
+</div>
+
+<div id="follow-up">
+  <input type="text" id="userInput" placeholder="Type your response..." />
+  <button class="send-btn" onclick="handleFollowUp()">Send</button>
+</div>
+
+<div id="team-credit">
+  <p>Group3 Team 1:<br>
+    Gege Wang<br>
+    Oumaima Affad<br>
+    Jose Santos<br>
+    Chengkang Wu<br>
+     <br>
+    May.30.2025
+  </p>
+</div>
+
+<script>
+const moodFlows = {
+  happy: {
+    intro: "Yay! I'm smiling just thinking about it 😄",
+    questions: Array.from({ length: 30 }, (_, i) => `Happy Q${i + 1}: What's something that made you smile today?`)
+  },
+  sad: {
+    intro: "Sending hugs your way 🤗",
+    questions: Array.from({ length: 30 }, (_, i) => `Sad Q${i + 1}: Want to share more about how you're feeling?`)
+  },
+  bored: {
+    intro: "Let’s shake things up! 🕺",
+    questions: Array.from({ length: 30 }, (_, i) => `Bored Q${i + 1}: What's something random we can do?`)
+  },
+  anxious: {
+    intro: "Breathe with me... Inhale 🫁... Exhale 🌬️",
+    questions: Array.from({ length: 30 }, (_, i) => `Anxious Q${i + 1}: What's on your mind?`)
+  },
+  tired: {
+    intro: "You deserve a rest 💤",
+    questions: Array.from({ length: 30 }, (_, i) => `Tired Q${i + 1}: How are you resting today?`)
+  },
+  excited: {
+    intro: "Woohoo! You sound like confetti feels 🎉",
+    questions: Array.from({ length: 30 }, (_, i) => `Excited Q${i + 1}: Tell me more about your excitement!`)
+  }
+};
+
+const supportiveReplies = {
+  "i don't know": "That's totally okay. Sometimes just letting it out is a good first step 💙",
+  "no": "That's alright. I'm here whenever you need to talk 🫶",
+  "not really": "That’s completely valid. We all feel that way sometimes 💬",
+  "nah": "Got it. Just know I’m here for you!"
+};
+
+const finalReplies = [
+  "Thanks for sharing that with me 😊",
+  "You're doing amazing, truly 💜",
+  "I love hearing your thoughts 💬",
+  "That was a great chat. I'm always here!",
+  "You're awesome. Come back anytime!"
+];
+
+let currentMood = null;
+let questionIndex = 0;
+
+function startConversation(mood) {
+  currentMood = mood;
+  questionIndex = 0;
+  const moodData = moodFlows[mood];
+
+  addUserMessage(mood.charAt(0).toUpperCase() + mood.slice(1));
+  addBotMessage(moodData.intro);
+  addBotMessage(moodData.questions[questionIndex]);
+
+  document.getElementById("follow-up").style.display = "block";
+}
+
+function handleFollowUp() {
+  const input = document.getElementById("userInput");
+  const userText = input.value.trim();
+  if (!userText) return;
+
+  addUserMessage(userText);
+  input.value = "";
+
+  const moodData = moodFlows[currentMood];
+  questionIndex++;
+
+  if (questionIndex < moodData.questions.length) {
+    addBotMessage(moodData.questions[questionIndex]);
+  } else {
+    respondEmpathetically(userText.toLowerCase());
+    document.getElementById("follow-up").style.display = "none";
+  }
+}
+
+function respondEmpathetically(input) {
+  let found = false;
+  for (const key in supportiveReplies) {
+    if (input.includes(key)) {
+      addBotMessage(supportiveReplies[key]);
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) {
+    const final = finalReplies[Math.floor(Math.random() * finalReplies.length)];
+    addBotMessage(final);
+  }
+}
+
+function addUserMessage(text) {
+  const msg = document.createElement("div");
+  msg.className = "user-msg";
+  msg.textContent = text;
+  document.getElementById("chatbox").appendChild(msg);
+}
+
+function addBotMessage(text) {
+  const msg = document.createElement("div");
+  msg.className = "bot-msg";
+  msg.textContent = text;
+  document.getElementById("chatbox").appendChild(msg);
+  document.getElementById("chatbox").scrollTop = document.getElementById("chatbox").scrollHeight;
+}
+</script>
+
+</body>
+</html>
