@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MoodBot 🤖</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff8dc;
+      padding: 20px;
+      margin: 0;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    .chatbox {
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      padding: 15px;
+      width: 100%;
+      max-width: 400px;
+      max-height: 500px;
+      overflow-y: auto;
+      background: #fff;
+      margin: 0 auto;
+    }
+
+    .bot-msg, .user-msg {
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 5px;
+      width: fit-content;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+
+    .bot-msg {
+      background-color: #e0c3fc;
+    }
+
+    .user-msg {
+      background-color: #c3fcb5;
+      align-self: flex-end;
+      text-align: right;
+      margin-left: auto;
+    }
+
+    .mood-btn {
+      padding: 8px 12px;
+      margin: 5px;
+      background-color: #add8e6;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #mood-buttons {
+      text-align: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    #follow-up {
+      display: none;
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    input[type="text"] {
+      padding: 8px;
+      width: 60%;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button.send-btn {
+      padding: 8px 12px;
+      margin-left: 5px;
+      background-color: #90ee90;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .team {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      font-size: 10px;
+      color: grey;
+    }
+
+    @media screen and (max-width: 600px) {
+      .chatbox {
+        width: 95%;
+      }
+
+      input[type="text"] {
+        width: 50%;
+      }
+
+      .mood-btn {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h2>🤖 MoodBot – Let’s Chat!</h2>
+
+<div class="chatbox" id="chatbox">
+  <div class="bot-msg">Hi! How are you feeling today? Choose a mood below 👇</div>
+</div>
+
+<div id="mood-buttons">
+  <button class="mood-btn" onclick="startConversation('happy')">Happy</button>
+  <button class="mood-btn" onclick="startConversation('sad')">Sad</button>
+  <button class="mood-btn" onclick="startConversation('bored')">Bored</button>
+  <button class="mood-btn" onclick="startConversation('anxious')">Anxious</button>
+  <button class="mood-btn" onclick="startConversation('tired')">Tired</button>
+  <button class="mood-btn" onclick="startConversation('excited')">Excited</button>
+</div>
+
+<div id="follow-up">
+  <input type="text" id="userInput" placeholder="Type your response..." />
+  <button class="send-btn" onclick="handleFollowUp()">Send</button>
+</div>
+
+<div class="team">
+  Team 1:<br />
+  Gege Wang<br />
+  Oumaima Affad<br />
+  Jose Santos<br />
+  Chengkang Wu<br />
+    <br />
+   May.30.2025
+</div>
+
+<script>
+const moodFlows = {
+  happy: {
+    intro: "Yay! I'm smiling just thinking about it 😄",
+    questions: [
+      "What made you smile today?",
+      "Did someone do something kind for you?",
+      "Is it a special occasion?",
+      "Have you felt this happy recently?",
+      "Would you like to share your joy with someone?",
+      "What keeps this smile on your face?",
+      "Do you often feel this way?",
+      "What color do you associate with your joy?",
+      "How can you hold onto this feeling longer?",
+      "Is there a song that fits your mood?",
+      "What would you do to celebrate?",
+      "Did something unexpected bring you joy?",
+      "Would you want to write this moment down?",
+      "What’s the highlight of your day?",
+      "Are you around someone who makes you laugh?",
+      "Is there a place you’d love to go when happy?",
+      "What food fits your mood right now?",
+      "Would you dance right now if you could?",
+      "Do you want to take a photo to remember this?",
+      "Is your happiness contagious today?",
+      "Would you like to create something?",
+      "Who do you wish was here with you?",
+      "What does your happy place look like?",
+      "What inspires you right now?",
+      "Would you describe your feeling as excitement?",
+      "Is this happiness peaceful or energetic?",
+      "What’s something that made you laugh out loud?",
+      "How can you spread this joy?",
+      "Do you want to plan something fun?",
+      "If your happiness was a color, what would it be?"
+    ]
+  },
+  sad: {
+    intro: "Sending hugs your way 🤗",
+    questions: [
+      "Do you want to talk about what's making you sad?",
+      "How long have you been feeling this way?",
+      "Did something happen today that upset you?",
+      "Is there someone you miss?",
+      "Are you feeling lonely?",
+      "What usually helps when you feel down?",
+      "Do you want a distraction or comfort?",
+      "Is it okay if we just sit with it a while?",
+      "Can you describe what you're feeling?",
+      "Has this been building for a while?",
+      "What do you wish someone would say to you now?",
+      "Is there something you didn’t get to say?",
+      "Would writing about it help?",
+      "Do you need space or support right now?",
+      "Would music help you process this?",
+      "Is this sadness tied to a memory?",
+      "How does your body feel when you're sad?",
+      "What does comfort look like to you?",
+      "Can you identify a small moment of peace today?",
+      "Would sharing this with someone help?",
+      "Are you being kind to yourself right now?",
+      "Is there a small joy you can reach for?",
+      "Would a warm drink help?",
+      "Do you want to rest a bit?",
+      "Can you take a few deep breaths with me?",
+      "What are you proud of despite the sadness?",
+      "Would drawing or doodling help?",
+      "Is it okay if I remind you that you’re not alone?",
+      "What would you say to a friend feeling this way?",
+      "What does hope look like to you right now?"
+    ]
+  },
+  bored: {
+    intro: "Let’s shake things up! 🕺",
+    questions: [
+      "What do you usually do when you're bored?",
+      "Have you tried something new recently?",
+      "Do you want a game or a fun fact?",
+      "What’s a creative thing you’ve wanted to try?",
+      "If you had a free hour, what would you do?",
+      "Is there a place you wish you were?",
+      "Would you like a music suggestion?",
+      "Are you more into relaxing or being active now?",
+      "Is this boredom from lack of ideas or energy?",
+      "Do you want to explore a hobby together?",
+      "Have you reorganized your space lately?",
+      "Want to write a silly poem?",
+      "Should we do a quick mindfulness activity?",
+      "Do you want a random challenge?",
+      "What’s your dream spontaneous trip?",
+      "Are you craving movement or quiet?",
+      "Would a funny video help?",
+      "Want to invent a new word?",
+      "Could you call someone you haven’t in a while?",
+      "Do you like trivia games?",
+      "Do you want a drawing prompt?",
+      "Can you list five green things nearby?",
+      "Have you ever tried journaling for fun?",
+      "Want to design your own superhero?",
+      "Would imagining your ideal day help?",
+      "What’s something totally random we can do?",
+      "Want to build a story one line at a time?",
+      "Could we try some wordplay?",
+      "Should we time travel in our imaginations?",
+      "Want to make a bucket list together?"
+    ]
+  },
+  anxious: {
+    intro: "Breathe with me... Inhale 🫁... Exhale 🌬️",
+    questions: [
+      "Is there something specific making you anxious?",
+      "Have you felt this way before?",
+      "Would you like a calming exercise?",
+      "What usually helps you feel grounded?",
+      "Do you want to visualize a safe place?",
+      "Would talking about it help ease the tension?",
+      "Are your thoughts racing or looping?",
+      "Can we focus on your breath for a moment?",
+      "How is your body feeling right now?",
+      "Would a list help bring structure to the worry?",
+      "Is this tied to a future worry or a past event?",
+      "What are three things you can see?",
+      "Do you want to hear something reassuring?",
+      "What would you tell a friend feeling this way?",
+      "Is it okay if I remind you you’re safe right now?",
+      "Can you notice something calming around you?",
+      "Would you like to move your body a bit?",
+      "Is there a song that makes you feel better?",
+      "Should we try counting backwards together?",
+      "What helps when things feel overwhelming?",
+      "Do you want to try box breathing?",
+      "Would stretching help?",
+      "Can you name five things you’re grateful for?",
+      "Want to repeat a calming phrase with me?",
+      "Can you feel your feet on the ground?",
+      "Would cold water on your hands help?",
+      "Do you want a positive affirmation?",
+      "Can you picture a peaceful nature scene?",
+      "Want to talk about something light?",
+      "Let’s slow it all down together now."
+    ]
+  },
+  tired: {
+    intro: "You deserve a rest 💤",
+    questions: [
+      "Are you tired physically or emotionally?",
+      "Did you sleep well last night?",
+      "What’s been most draining today?",
+      "Have you taken a break yet?",
+      "Would a nap help?",
+      "Is it stress or activity wearing you out?",
+      "What would a restful moment look like now?",
+      "Do you need quiet or connection?",
+      "How can you recharge tonight?",
+      "Would soft music help?",
+      "Have you drunk enough water today?",
+      "Would you enjoy a warm beverage?",
+      "Can you lower your mental load?",
+      "What kind of self-care helps when you’re tired?",
+      "Would closing your eyes for 1 min help?",
+      "Are your muscles tense?",
+      "Would a stretch feel good now?",
+      "What’s one thing you can let go of today?",
+      "Can you delegate something to someone else?",
+      "Would nature help refresh you?",
+      "Are you being gentle with yourself?",
+      "What’s the first thing you’ll do after resting?",
+      "Would journaling help you unwind?",
+      "Could a change of scenery help?",
+      "What time will you rest today?",
+      "Is your environment cozy and calming?",
+      "Do you want to rest your eyes a moment?",
+      "Have you eaten today?",
+      "Would reading or silence feel better now?",
+      "How can I support your rest?"
+    ]
+  },
+  excited: {
+    intro: "Woohoo! You sound like confetti feels 🎉",
+    questions: [
+      "What’s got you feeling so pumped?",
+      "Is it something you’ve been waiting for?",
+      "How do you plan to celebrate?",
+      "Can I get a sneak peek of the excitement?",
+      "Is this part of a dream coming true?",
+      "Would you share it with someone special?",
+      "How long have you looked forward to this?",
+      "What’s your favorite way to express excitement?",
+      "Will there be music involved?",
+      "Is this the beginning of something new?",
+      "Would you like to write it down to remember?",
+      "Can you describe the feeling in one word?",
+      "Do you feel like dancing?",
+      "What’s one thing you want to do next?",
+      "Is it something creative or adventurous?",
+      "How does your body feel when you’re excited?",
+      "Who do you want to share this with first?",
+      "Would you make a video or journal entry?",
+      "Could this lead to something bigger?",
+      "Have you shared this with someone yet?",
+      "Does it involve a trip or experience?",
+      "What’s something fun you want to do right now?",
+      "Would you like to talk more about it?",
+      "Can I help you prepare for it?",
+      "Will you remember this day forever?",
+      "Would you say this moment is magical?",
+      "What emotion comes right after the excitement?",
+      "Do you feel more creative when excited?",
+      "How would you describe this moment in a poem?",
+      "Is this your favorite kind of excitement?"
+    ]
+  }
+};
+
+const supportiveReplies = {
+  "i don't know": "That's totally okay. Sometimes just letting it out is a good first step 💙",
+  "no": "That's alright. I'm here whenever you need to talk 🫶",
+  "not really": "That’s completely valid. We all feel that way sometimes 💬",
+  "nah": "Got it. Just know I’m here for you!"
+};
+
+const finalReplies = [
+  "Thanks for sharing that with me 😊",
+  "You're doing amazing, truly 💜",
+  "I love hearing your thoughts 💬",
+  "That was a great chat. I'm always here!",
+  "You're awesome. Come back anytime!"
+];
+
+let currentMood = null;
+let questionIndex = 0;
+
+function startConversation(mood) {
+  currentMood = mood;
+  questionIndex = 0;
+  const moodData = moodFlows[mood];
+
+  addUserMessage(mood.charAt(0).toUpperCase() + mood.slice(1));
+  addBotMessage(moodData.intro);
+  addBotMessage(moodData.questions[questionIndex]);
+
+  document.getElementById("follow-up").style.display = "block";
+}
+
+function handleFollowUp() {
+  const input = document.getElementById("userInput");
+  const userText = input.value.trim();
+  if (!userText) return;
+
+  addUserMessage(userText);
+  input.value = "";
+
+  const moodData = moodFlows[currentMood];
+  questionIndex++;
+
+  if (questionIndex < moodData.questions.length) {
+    addBotMessage(moodData.questions[questionIndex]);
+  } else {
+    respondEmpathetically(userText.toLowerCase());
+    document.getElementById("follow-up").style.display = "none";
+  }
+}
+
+function respondEmpathetically(input) {
+  let found = false;
+  for (const key in supportiveReplies) {
+    if (input.includes(key)) {
+      addBotMessage(supportiveReplies[key]);
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) {
+    const final = finalReplies[Math.floor(Math.random() * finalReplies.length)];
+    addBotMessage(final);
+  }
+}
+
+function addUserMessage(text) {
+  const msg = document.createElement("div");
+  msg.className = "user-msg";
+  msg.textContent = text;
+  document.getElementById("chatbox").appendChild(msg);
+}
+
+function addBotMessage(text) {
+  const msg = document.createElement("div");
+  msg.className = "bot-msg";
+  msg.textContent = text;
+  document.getElementById("chatbox").appendChild(msg);
+  document.getElementById("chatbox").scrollTop = document.getElementById("chatbox").scrollHeight;
+}
+</script>
+
+</body>
+</html>
